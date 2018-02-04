@@ -7,7 +7,13 @@ RUN dpkg-divert --local --rename --add /sbin/initctl
 RUN ln -sf /bin/true /sbin/initctl
 
 COPY .meh /tmp/.meh
-RUN apt-get update && apt-get upgrade -y && apt-get install -y openssh-server curl lsb-release sudo make locales python build-essential aptitude git rsync jq netcat
+
+RUN apt-get update && apt-get install -y openssh-server curl lsb-release sudo make locales python build-essential aptitude rsync jq netcat software-properties-common python-software-properties net-tools dnsmasq unzip perl ruby language-pack-en vim man screen runit nfs-common portmap gettext-base libffi-dev libssl-dev libreadline-dev zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool
+RUN add-apt-repository -y ppa:git-core/ppa
+RUN apt-get update
+RUN apt-get install -y git
+RUN apt-get upgrade
+
 RUN locale-gen en_US.UTF-8
 RUN dpkg-reconfigure --frontend=noninteractive locales
 RUN update-locale LANG=en_US.UTF-8
