@@ -1,5 +1,8 @@
 SHELL := bash
 
+SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -r '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway')
+SSH_HOST ?= 127.0.0.1
+
 restart:
 	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
 	$(MAKE) up
