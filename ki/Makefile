@@ -42,7 +42,7 @@ continue:
 	echo FINISHED: ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
 
 finish:
-	docker commit $(shell echo $(REPO) | cut -d/ -f1)_latest_1 $(REPO):latest
+	docker commit $(shell docker-compose ps -q | head -1) $(REPO):latest
 	docker-compose down || docker-compose down
 	$(MAKE) prune || true
 
