@@ -46,3 +46,10 @@ ssh-config:
 
 update push pull prune prep:
 	cd ki && $(MAKE) $@
+
+data-upload:
+	docker create --name data -v /data alpine true || truew
+	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data2/. /data/.
+
+data-download:
+	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data/. /data2/.
