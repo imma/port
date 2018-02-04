@@ -9,8 +9,8 @@ services:
     restart: always
   openvpn:
     build: openvpn
-    volumes:
-      - openvpn_data:/etc/openvpn
+    volumes_from:
+      - container:openvpn_data
     network_mode: host
     cap_add:
       - NET_ADMIN
@@ -22,6 +22,7 @@ services:
   latest:
     build: latest
     privileged: true
+    volumes_from:
+      - container:data
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - data:/data
