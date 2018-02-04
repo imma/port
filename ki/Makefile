@@ -75,7 +75,6 @@ virtualbox-docker:
 
 prune:
 	docker system prune -f
-	docker system prune -f --volumes
 	docker system df
 
 prep: .kitchen/docker_id_rsa
