@@ -15,12 +15,12 @@ up:
 	$(MAKE) ssh-config
 	docker-compose build
 	docker-compose up -d --force-recreate
-	while [[ ! -e config/docker.ovpn ]]; do sleep 1; done
+	while ! docker run --volumes-from openvpn_data alpine ls /etc/openvpn/docker.ovpn 2>/dev/null; do sleep 1; done
 
 connect:
-	rm -f .connected
-	while [[ ! -e config/docker.ovpn ]]; do sleep 1; done && make init &
-	block openvpn script/server default --script-security 2 --up "$(shell pwd)/script/up" --config "$(shell pwd)/config/docker.ovpn"
+	mkdir -p config
+	docker run --volumes-from openvpn_data alpine cat /etc/openvpn/docker.ovpn > config/docker.ovpn
+	block openvpn script/server default --script-security 2 --config "$(shell pwd)/config/docker.ovpn"
 
 ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].NetworkSettings.Networks.port_default.IPAddress')
 
@@ -47,9 +47,15 @@ ssh-config:
 update push pull prune prep:
 	cd ki && $(MAKE) $@
 
+seed:
+	docker create --name data -v /data alpine true || true
+	docker create --name openvpn_data -v /data alpine true || true
+
 data-upload:
-	docker create --name data -v /data alpine true || truew
 	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data2/. /data/.
 
 data-download:
 	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data/. /data2/.
+
+logs:
+	docker-compose logs -f

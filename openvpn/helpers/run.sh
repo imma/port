@@ -1,12 +1,8 @@
 #!/bin/sh
 
-set -x
-
 dest=${dest:-docker.ovpn}
 
-
 if [ ! -f "/etc/openvpn/$dest" ]; then
-sleep 60
     echo "*** REGENERATING ALL CONFIGS ***"
     set -ex
     ovpn_genconfig -u tcp://localhost
