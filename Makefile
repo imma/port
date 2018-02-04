@@ -48,7 +48,7 @@ ssh-config:
 	rsync -ia ~/.ssh/authorized_keys latest/.ssh/
 
 update push pull prune prep:
-	cd ki && $(MAKE) $@
+	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) $@
 
 seed:
 	docker volume create data
