@@ -64,3 +64,7 @@ data-download:
 
 logs:
 	docker-compose logs -f
+
+shell:
+	$(MAKE) prune
+	docker run --volumes-from data -v /var/run/docker.sock:/var/run/docker.sock -ti -u ubuntu -w /home/ubuntu imma/ubuntu bash
