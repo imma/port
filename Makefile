@@ -50,6 +50,8 @@ update push pull prune prep:
 seed:
 	docker volume create data
 	docker volume create openvpn_data
+	docker create --name data -v data:/data alpine true || true
+	docker create --name openvpn_data -v openvpn_data:/etc/openvpn alpine true || true
 
 data-upload:
 	docker run -v data:/data -v $(DATA):/data2 -ti ubuntu bash -c "apt-get update; apt-get install -y rsync; rsync -ia /data2/. /data/. --delete"
