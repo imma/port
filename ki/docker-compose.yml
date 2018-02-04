@@ -5,5 +5,5 @@ services:
     privileged: true
     ports:
       - "2222:22"
-    volumes_from:
-      - container:data
+    volumes:
+      - data:/data
