@@ -1,0 +1,4 @@
+*.ovpn
+/.ssh
+/.connected
+/.pgroup

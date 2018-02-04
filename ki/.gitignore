@@ -1,0 +1,6 @@
+/Dockerfile
+/.meh*
+.ssh/authorized_keys
+.kitchen
+
+

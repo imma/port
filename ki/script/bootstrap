@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+function main {
+  set -x
+
+  cd
+
+  ssh -o StrictHostKeyChecking=no github.com uname -a || true
+
+  if [[ ! -d .git ]]; then
+    git clone git@github.com:imma/ubuntu
+    mv ubuntu/.git .
+    git reset --hard
+    git clean -ffd
+  fi
+
+  git fetch
+  git pull
+
+  script/setup
+  script/bootstrap || true
+
+  sudo rm -f ~root/.ssh/authorized_keys
+  (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
+  for a in {1..5}; do git clean -ffd || true; done
+  rm -rf "$WRKOBJDIR"
+  rm -rf "$PKGSRCDIR"
+
+  sudo find ~root/.ssh .ssh
+  git status
+} 
+
+main "$@"

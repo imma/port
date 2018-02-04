@@ -1,0 +1,2 @@
+ki exec virtualbox-ubuntu -c 'set -x; ssh -A ubuntu@localhost bash -c "\"cd ki && make && ki reset docker-ubuntu\""'
+
