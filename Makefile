@@ -1,6 +1,6 @@
 SHELL := bash
 
-SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway' || echo 127.0.0.1)
+SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway' 2>/dev/null || echo 127.0.0.1)
 
 restart:
 	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
@@ -67,4 +67,12 @@ logs:
 
 shell:
 	$(MAKE) prune
-	docker run --volumes-from data -v /var/run/docker.sock:/var/run/docker.sock -ti -u ubuntu -w /home/ubuntu imma/ubuntu bash
+	docker rm -f shell 2>/dev/null || true
+	docker run -d --name shell -p :22 --volumes-from data -v $(HOME)/.ssh/authorized_keys:/home/ubuntu/.ssh/authorized_keys -v /var/run/docker.sock:/var/run/docker.sock -ti imma/ubuntu /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
+	$(MAKE) shell-inner
+
+shell-inner:
+	while true; do if ssh -l ubuntu -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
+	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
+	docker rm -f shell
+
