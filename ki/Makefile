@@ -76,6 +76,8 @@ virtualbox-docker:
 prune:
 	docker system prune -f
 	docker system df
+	docker create --name data -v data:/data alpine true
+	docker create --name openvpn_data -v openvpn_data:/etc/openvpn alpine true
 
 prep: .kitchen/docker_id_rsa
 	if ! docker inspect "$(REPO):start" > /dev/null; then docker tag $(REPO):latest $(REPO):start; fi
