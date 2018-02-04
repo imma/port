@@ -3,14 +3,13 @@ DATA ?= /data
 SSH_HOST ?= 127.0.0.1
 REPO ?= imma/ubuntu
 TAG ?= latest
-PREFIX := fehfeh$(shell hostname | perl -pe 's{[\.-]}{}g')
 
 all:
 	echo $(shell date +%s) >> .meh
 	$(MAKE) base
 	docker tag $(REPO):ubuntu $(REPO):start
 	docker tag $(REPO):ubuntu $(REPO):start2
-	env COMPOSE_PROJECT_NAME=$(PREFIX) docker-compose up -d --force-recreate
+	env docker-compose up -d --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
 	$(MAKE) continue
@@ -32,7 +31,7 @@ update:
 	ln -nfs Dockerfile.update Dockerfile
 	echo $(shell date +%s) >> .meh
 	docker build -t $(REPO):start2 .
-	env COMPOSE_PROJECT_NAME=$(PREFIX) docker-compose up -d --force-recreate
+	docker-compose up -d --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
 	$(MAKE) continue
@@ -43,8 +42,8 @@ continue:
 	echo FINISHED: ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
 
 finish:
-	docker commit $(PREFIX)_$(shell echo $(REPO) | cut -d/ -f1)_latest_1 $(REPO):latest
-	env COMPOSE_PROJECT_NAME=$(PREFIX) docker-compose down || env COMPOSE_PROJECT_NAME=$(PREFIX) docker-compose down
+	docker commit $(shell echo $(REPO) | cut -d/ -f1)_latest_1 $(REPO):latest
+	docker-compose down || docker-compose down
 	$(MAKE) prune || true
 
 dind:
