@@ -1,9 +1,9 @@
-version: '3.4'
+version: '2.3'
 services:
   imma_latest:
     image: "imma/ubuntu:start2"
     privileged: true
     ports:
       - "2222:22"
-    volumes:
-      - "${DATA}:/data"
+    volumes_from:
+      - container:data

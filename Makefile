@@ -52,7 +52,7 @@ seed:
 	docker create --name openvpn_data -v /data alpine true || true
 
 data-upload:
-	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data2/. /data/.
+	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data2/. /data/. --delete
 
 data-download:
 	docker run --volumes-from data -v $(DATA):/data2 -ti imma/ubuntu rsync -ia /data/. /data2/.
