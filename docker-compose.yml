@@ -20,7 +20,7 @@ services:
     command: /local/helpers/run.sh
     restart: always
   latest:
-    build: .
+    build: latest
     privileged: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

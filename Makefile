@@ -26,23 +26,23 @@ ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].Netwo
 
 ssh:
 	$(MAKE) ssh-config
-	ssh-keyscan $(ssh_host) > .ssh/known_hosts
-	ssh -A -o StrictHostKeyChecking=yes -o UserKnownHostsFile=.ssh/known_hosts $(ssh_host) $(opt)
+	ssh-keyscan $(ssh_host) > latest/.ssh/known_hosts
+	ssh -A -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(ssh_host) $(opt)
 
 init:
 	while ! $(MAKE) ssh opt="-o ConnectTimeout=1 true"; do sleep 1; done
-	tx init $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=.ssh/known_hosts $(opt)
+	tx init $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(opt)
 	@echo '======================================================='
 	@echo '=============== one-time init finished   =============='
 	@echo '======================================================='
 
 attach:
 	$(MAKE) ssh opt=true
-	tx $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=.ssh/known_hosts $(opt)
+	tx $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(opt)
 
 ssh-config:
-	mkdir -p .ssh
-	rsync -ia ~/.ssh/authorized_keys .ssh/
+	mkdir -p latest/.ssh
+	rsync -ia ~/.ssh/authorized_keys latest/.ssh/
 
 update push pull prune prep:
 	cd ki && $(MAKE) $@
