@@ -1,6 +1,6 @@
 version: '2.3'
 services:
-  imma_latest:
+  imma_start2:
     image: "imma/ubuntu:start2"
     privileged: true
     ports:
