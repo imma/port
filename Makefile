@@ -50,7 +50,7 @@ update push pull prune prep:
 	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) $@
 
 base:
-	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE)
+	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) ubuntu_base
 
 seed:
 	docker volume create data

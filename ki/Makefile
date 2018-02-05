@@ -7,7 +7,7 @@ DOCKER_COMPOSE := env COMPOSE_PROJECT_NAME=build docker-compose
 
 all:
 	echo $(shell date +%s) >> .meh
-	$(MAKE) base
+	$(MAKE) ubuntu_base
 	docker tag $(REPO):ubuntu $(REPO):start
 	docker tag $(REPO):ubuntu $(REPO):start2
 	$(DOCKER_COMPOSE) up -d --force-recreate
@@ -17,7 +17,7 @@ all:
 	$(MAKE) finish
 	docker tag $(REPO):latest $(REPO):start
 
-base: .kitchen/docker_id_rsa
+ubuntu_base: .kitchen/docker_id_rsa
 	$(MAKE) prune || true
 	mkdir -p .ssh
 	rsync -ia ~/.ssh/authorized_keys .ssh/
