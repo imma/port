@@ -81,3 +81,5 @@ shell-inner:
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
 	docker rm -f shell
 
+sync:
+	cd && block sync fast
