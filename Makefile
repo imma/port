@@ -71,6 +71,10 @@ logs:
 	docker-compose logs -f
 
 shell:
+	$(MAKE) shell-setup
+	$(MAKE) shell-ssh
+
+shell-setup:
 	$(MAKE) prune
 	docker rm -f port_shell 2>/dev/null || true
 	docker run -d --name port_shell -p :22 --volumes-from data -v $(HOME)/.ssh/authorized_keys:/home/ubuntu/.ssh/authorized_keys -v /var/run/docker.sock:/var/run/docker.sock -ti imma/ubuntu /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
@@ -80,8 +84,12 @@ shell-inner:
 	while true; do if ssh -l ubuntu -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST) block sync fast
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST) sudo chgrp docker /var/run/docker.sock
+
+shell-ssh:
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
-	docker rm -f port_shell
 
 sync:
 	cd && block sync fast
+
+install:
+	sudo apt-get -y install make jq docker-compose
