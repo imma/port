@@ -99,7 +99,7 @@ function main {
         ;;
     esac
 
-		ssh -o StrictHostKeyChecking=no github.com uname -a || true
+		ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true
 
 		git clone git@github.com:imma/ubuntu
 		mv ubuntu/.git .
