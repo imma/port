@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 function main {
-  set -x
 
   cd
 
@@ -15,19 +14,18 @@ function main {
   fi
 
   git fetch
+	git reset --hard
   git pull
 
   script/setup
-  script/bootstrap || true
+  script/bootstrap
 
+  for a in {1..5}; do git clean -ffd || true; done
   sudo rm -f ~root/.ssh/authorized_keys
   (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
-  for a in {1..5}; do git clean -ffd || true; done
+  apt-get clean
   rm -rf "$WRKOBJDIR"
   rm -rf "$PKGSRCDIR"
-
-  sudo find ~root/.ssh .ssh
-  git status
 } 
 
 main "$@"

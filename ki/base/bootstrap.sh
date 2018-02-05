@@ -71,31 +71,6 @@ function main {
           esac
           sleep 1
         done
-        set -x
-
-        $loader mv /var/cache/apt/archives /var/cache/apt/archives.old || true
-        $loader mkdir -p /data/cache/apt/partial || true
-        $loader ln -s /data/cache/apt /var/cache/apt/archives
-        $loader rm -f /etc/apt/apt.conf.d/docker-clean
-
-        $loader apt-get update
-        $loader apt-get install -y openssh-server curl lsb-release sudo make locales python build-essential aptitude git rsync jq netcat
-        $loader aptitude hold grub-legacy-ec2 docker-ce
-        $loader apt-get upgrade -y
-        ;;
-      Amazon)
-        $loader yum install -y wget curl rsync make nc git hostname
-        ;;
-      CentOS)
-        $loader yum install -y wget curl rsync make nc # git conflicts with a newer version
-
-        wget -nc https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        (set +f; $loader rpm -Uvh epel-release-latest-7*.rpm || true)
-
-        wget https://centos7.iuscommunity.org/ius-release.rpm
-        (set +f; $loader rpm -Uvh ius-release*.rpm || true)
-
-        $loader yum install -y git2u
         ;;
     esac
 
@@ -109,21 +84,15 @@ function main {
 
   git fetch
 	git reset --hard
-
-	for a in in {1..5}; do git clean -ffd || true; done
-  sudo rm -f ~root/.ssh/authorized_keys
-  (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
+  git pull
 
 	script/setup
 	script/bootstrap
 
-  case "${DISTRIB_ID}" in
-    Ubuntu)
-      $loader rm -rf /var/cache/apt/archives
-      $loader mkdir -p /var/cache/apt/archives/partial
-      ;;
-  esac
-
+	for a in {1..5}; do git clean -ffd || true; done
+  sudo rm -f ~root/.ssh/authorized_keys
+  (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
+  apt-get clean
   rm -rf "$WRKOBJDIR"
   rm -rf "$PKGSRCDIR"
 }
