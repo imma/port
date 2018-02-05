@@ -3,16 +3,15 @@ FROM ubuntu:16.04
 ENV container docker
 
 ENV DEBIAN_FRONTEND noninteractive
+COPY .meh /tmp/cache/.meh
+COPY . /tmp/cache
+
 RUN dpkg-divert --local --rename --add /sbin/initctl
 RUN ln -sf /bin/true /sbin/initctl
 
-COPY .meh /tmp/.meh
-
 RUN apt-get update && apt-get install -y openssh-server curl lsb-release sudo make locales python build-essential aptitude rsync jq netcat software-properties-common python-software-properties net-tools dnsmasq unzip perl ruby language-pack-en vim man screen runit nfs-common portmap gettext-base libffi-dev libssl-dev libreadline-dev zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool
-RUN add-apt-repository -y ppa:git-core/ppa
-RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get upgrade
+RUN add-apt-repository -y ppa:git-core/ppa && apt-get update && apt-get install -y git
+RUN apt-get update && apt-get upgrade
 
 RUN locale-gen en_US.UTF-8
 RUN dpkg-reconfigure --frontend=noninteractive locales
@@ -26,8 +25,6 @@ RUN usermod -G docker ubuntu
 RUN echo "ubuntu ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults !requiretty" >> /etc/sudoers
 RUN install -d -m 0700 -o ubuntu -g ubuntu /home/ubuntu/.ssh
-
-COPY . /tmp/cache
 
 COPY .kitchen/docker_id_rsa /root/.ssh/id_rsa
 COPY .kitchen/docker_id_rsa /home/ubuntu/.ssh/id_rsa
