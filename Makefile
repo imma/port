@@ -59,6 +59,7 @@ seed:
 data-upload:
 	docker build -t imma/rsync rsync
 	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync rsync -ia /data2/. /data/. --delete
+	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync chown -R 1000:1000 /data
 
 data-download:
 	docker build -t imma/rsync rsync
