@@ -92,7 +92,6 @@ function main {
 	for a in {1..5}; do git clean -ffd || true; done
   sudo rm -f ~root/.ssh/authorized_keys
   (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
-  apt-get clean
   rm -rf "$WRKOBJDIR"
   rm -rf "$PKGSRCDIR"
 }
