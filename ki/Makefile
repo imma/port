@@ -10,7 +10,7 @@ all:
 	$(MAKE) ubuntu_base
 	docker tag $(REPO):ubuntu $(REPO):start
 	docker tag $(REPO):ubuntu $(REPO):start2
-	$(DOCKER_COMPOSE) up -d --force-recreate
+	$(DOCKER_COMPOSE) up -d --build --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
 	$(MAKE) continue
@@ -32,7 +32,7 @@ update:
 	ln -nfs Dockerfile.update Dockerfile
 	echo $(shell date +%s) >> .meh
 	docker build -t $(REPO):start2 .
-	$(DOCKER_COMPOSE) up -d --force-recreate
+	$(DOCKER_COMPOSE) up -d --build --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
 	$(MAKE) continue

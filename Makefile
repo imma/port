@@ -15,8 +15,7 @@ screen:
 
 up:
 	$(MAKE) ssh-config
-	docker-compose build
-	docker-compose up -d --force-recreate
+	docker-compose up -d --build --force-recreate
 	while ! docker run --volumes-from openvpn_data alpine ls /etc/openvpn/docker.ovpn 2>/dev/null; do sleep 1; done
 
 connect:
