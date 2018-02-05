@@ -57,10 +57,12 @@ seed:
 	docker volume create openvpn_data
 
 data-upload:
-	docker run -v data:/data -v $(DATA):/data2 -ti ubuntu bash -c "apt-get update; apt-get install -y rsync; rsync -ia /data2/. /data/. --delete"
+	docker build -t imma/rsync rsync
+	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync rsync -ia /data2/. /data/. --delete
 
 data-download:
-	docker run -v data:/data  -v $(DATA):/data2 -ti ubuntu rsync -ia /data/. /data2/.
+	docker build -t imma/rsync rsync
+	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync rsync -ia /data/. /data2/.
 
 logs:
 	docker-compose logs -f
