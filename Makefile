@@ -76,6 +76,7 @@ shell:
 
 shell-inner:
 	while true; do if ssh -l ubuntu -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
+	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST) block sync fast
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
 	docker rm -f shell
 
