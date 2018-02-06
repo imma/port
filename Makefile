@@ -23,7 +23,7 @@ connect:
 	docker run --volumes-from openvpn_data alpine cat /etc/openvpn/docker.ovpn > config/docker.ovpn
 	block openvpn script/server default --script-security 2 --config "$(shell pwd)/config/docker.ovpn"
 
-ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].NetworkSettings.Networks.port_default.IPAddress')
+ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].NetworkSettings.Networks.bridge.IPAddress')
 
 ssh:
 	$(MAKE) ssh-config
