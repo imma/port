@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 COPY .meh /tmp/cache/.meh
 COPY . /tmp/cache
 
-RUN apt-get update && apt-get upgrade
+RUN apt-get update && apt-get upgrade -y
 
 COPY .kitchen/docker_id_rsa /root/.ssh/id_rsa
 COPY .kitchen/docker_id_rsa /home/ubuntu/.ssh/id_rsa
