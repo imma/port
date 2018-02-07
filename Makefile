@@ -4,6 +4,7 @@ SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].
 
 restart:
 	$(MAKE) prune
+	$(MAKE) ssh-config
 	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
 	$(MAKE) up
 	$(MAKE) connect
@@ -45,6 +46,7 @@ attach:
 ssh-config:
 	mkdir -p latest/.ssh
 	mkdir -p .ssh
+	rsync -ia ~/.ssh/authorized_keys latest/.ssh/
 	rsync -ia ~/.ssh/authorized_keys .ssh/
 
 push pull prune prep:
