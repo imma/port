@@ -48,7 +48,7 @@ finish:
 	$(MAKE) prune || true
 
 dind:
-	$(MAKE) SSH_HOST=172.17.0.1
+	$(MAKE) SSH_HOST=$(shell echo "$(shell docker network inspect bridge | jq -r '.[0].IPAM.Config[0].Subnet' | cut -d. -f1-3).1")
 
 .kitchen/docker_id_rsa:
 	mkdir -p .kitchen
