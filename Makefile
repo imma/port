@@ -30,7 +30,7 @@ ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].Netwo
 ssh:
 	$(MAKE) ssh-config
 	ssh-keyscan $(ssh_host) > latest/.ssh/known_hosts
-	ssh -A -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(ssh_host) $(opt)
+	ssh -A -l ubuntu -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(ssh_host) $(opt)
 
 init:
 	while ! $(MAKE) ssh opt="-o ConnectTimeout=1 true"; do sleep 1; done
