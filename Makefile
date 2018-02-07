@@ -44,7 +44,8 @@ attach:
 
 ssh-config:
 	mkdir -p latest/.ssh
-	rsync -ia ~/.ssh/authorized_keys latest/.ssh/
+	mkdir -p .ssh
+	rsync -ia ~/.ssh/authorized_keys .ssh/
 
 push pull prune prep:
 	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) $@
@@ -78,8 +79,10 @@ shell:
 
 shell-setup:
 	$(MAKE) prune
+	$(MAKE) ssh-config
 	docker rm -f port_shell 2>/dev/null || true
-	docker run -d --name port_shell -p :22 --volumes-from data -v $(HOME)/.ssh/authorized_keys:/home/ubuntu/.ssh/authorized_keys -v /var/run/docker.sock:/var/run/docker.sock -ti imma/ubuntu /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
+	docker build -t port_shell .
+	docker run -d --name port_shell -p :22 --volumes-from data -v /var/run/docker.sock:/var/run/docker.sock -ti port_shell /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
 
 shell-wait:
 	while true; do if ssh -l ubuntu -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
