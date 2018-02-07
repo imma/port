@@ -97,6 +97,7 @@ shell-ssh:
 	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
 
 sync:
+	git pull
 	cd && block sync fast
 
 install:
