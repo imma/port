@@ -18,7 +18,7 @@ function main {
 	git reset --hard
   git pull
 
-  make cache
+  script/setup
 }
 
 if [[ "$(id -u -n)" == "root" ]]; then
