@@ -4,10 +4,21 @@ set -exfu
 umask 0022
 
 function main {
-  cd "$HOME"
+  export BOARD_PATH="$HOME"
 
-  env
-  pwd
+  cd "$BOARD_PATH"
+
+  if [[ ! -d .git ]]; then
+		ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true
+		git clone git@github.com:imma/ubuntu
+		mv ubuntu/.git .
+  fi
+
+  git fetch
+	git reset --hard
+  git pull
+
+  make cache
 }
 
 if [[ "$(id -u -n)" == "root" ]]; then

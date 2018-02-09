@@ -61,70 +61,70 @@ platforms:
       dockerfile: ubuntu/Dockerfile
       platform: ubuntu
     provisioner:
-      script: ubuntu/minima.sh
+      script: base/minima.sh
   - name: debian-minima
     driver:
       linked_clone: true
       dockerfile: debian/Dockerfile
       platform: debian
     provisioner:
-      script: debian/minima.sh
+      script: base/minima.sh
   - name: centos-minima
     driver:
       linked_clone: true
       dockerfile: centos/Dockerfile
       platform: centos
     provisioner:
-      script: centos/minima.sh
+      script: base/minima.sh
   - name: alpine-minima
     driver:
       linked_clone: true
       dockerfile: alpine/Dockerfile
       platform: alpine
     provisioner:
-      script: alpine/minima.sh
+      script: base/minima.sh
   - name: lambda-minima
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
   - name: lambda-go1x
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile.go1x
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
   - name: lambda-go1x
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile.go1x
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
   - name: lambda-py36
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile.py36
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
   - name: lambda-py27
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile.py27
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
   - name: lambda-java8
     driver:
       linked_clone: true
       dockerfile: lambda/Dockerfile.java8
       platform: lambda
     provisioner:
-      script: lambda/minima.sh
+      script: base/minima.sh
 
 suites:
   - name: virtualbox
