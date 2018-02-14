@@ -3,7 +3,6 @@ SHELL := bash
 SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway' 2>/dev/null || echo 127.0.0.1)
 
 restart:
-	$(MAKE) prune
 	$(MAKE) ssh-config
 	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
 	$(MAKE) up
@@ -80,7 +79,6 @@ shell:
 	$(MAKE) shell-ssh
 
 shell-setup:
-	$(MAKE) prune
 	$(MAKE) ssh-config
 	docker rm -f port_shell 2>/dev/null || true
 	docker build -t port_shell .

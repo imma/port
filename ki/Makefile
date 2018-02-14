@@ -18,7 +18,6 @@ all:
 	docker tag $(REPO):latest $(REPO):start
 
 ubuntu_base: .kitchen/docker_id_rsa
-	$(MAKE) prune || true
 	mkdir -p .ssh
 	rsync -ia ~/.ssh/authorized_keys .ssh/
 	ln -nfs Dockerfile.base Dockerfile
@@ -26,7 +25,6 @@ ubuntu_base: .kitchen/docker_id_rsa
 
 update:
 	$(MAKE) prep
-	$(MAKE) prune || true
 	mkdir -p .ssh
 	rsync -ia ~/.ssh/authorized_keys .ssh/
 	ln -nfs Dockerfile.update Dockerfile
@@ -45,7 +43,6 @@ continue:
 finish:
 	docker commit $(shell $(DOCKER_COMPOSE) ps -q | head -1) $(REPO):latest
 	$(DOCKER_COMPOSE) down || $(DOCKER_COMPOSE) down
-	$(MAKE) prune || true
 
 dind:
 	$(MAKE) SSH_HOST=$(shell echo "$(shell docker network inspect bridge | jq -r '.[0].IPAM.Config[0].Subnet' | cut -d. -f1-3).1")
