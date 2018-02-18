@@ -6,7 +6,6 @@ restart:
 	$(MAKE) ssh-config
 	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
 	$(MAKE) up
-	$(MAKE) connect
 
 screen:
 	screen -X -S imma quit || true
@@ -16,7 +15,7 @@ screen:
 
 up:
 	$(MAKE) ssh-config
-	docker-compose up -d --build --force-recreate
+	docker-compose up -d --build
 	while ! docker run --volumes-from openvpn_data alpine ls /etc/openvpn/docker.ovpn 2>/dev/null; do sleep 1; done
 
 connect:
