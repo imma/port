@@ -1,5 +1,7 @@
 FROM imma/ubuntu:start
 
+VOLUME /home
+
 ENV container docker
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -23,8 +25,6 @@ RUN chown -R ubuntu /home/ubuntu/.ssh
 RUN chmod 0600 /home/ubuntu/.ssh/authorized_keys
 
 RUN chown -R root:root /root/.ssh
-
-VOLUME /home
 
 COPY script/service /service
 ENTRYPOINT ["/service"]
