@@ -27,4 +27,5 @@ services:
       - container:data
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/work:/tmp/work
     network_mode: bridge
