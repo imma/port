@@ -81,7 +81,7 @@ shell-setup:
 	$(MAKE) ssh-config
 	docker rm -f port_shell 2>/dev/null || true
 	docker build -t port_shell .
-	docker run -d --name port_shell -p :22 --volumes-from data -v /var/run/docker.sock:/var/run/docker.sock -ti port_shell /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
+	docker run -d --name port_shell -p :22 --volumes-from data -v /tmp/work:/tmp/work -v /var/run/docker.sock:/var/run/docker.sock -ti port_shell /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox
 
 shell-wait:
 	while true; do if ssh -l ubuntu -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
