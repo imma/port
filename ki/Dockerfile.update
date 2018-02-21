@@ -26,4 +26,4 @@ RUN chown -R root:root /root/.ssh
 
 COPY script/service /service
 ENTRYPOINT ["/service"]
-CMD ["bash", "-c", "mkdir -p /var/run/sshd && exec /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox"]
+CMD ["bash", "-c", "install -d -o ubuntu -g ubuntu -m 0700 /home/ubuntu/.ssh; install -o ubuntu -g ubuntu -m 0600 /data/authorized_keys /home/ubuntu/.ssh/authorized_keys; mkdir -p /var/run/sshd && exec /usr/sbin/sshd -D -o UseDNS=no -o UsePAM=yes -o PasswordAuthentication=no -o UsePrivilegeSeparation=sandbox"]
