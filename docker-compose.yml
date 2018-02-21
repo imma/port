@@ -21,7 +21,7 @@ services:
     command: /local/helpers/run.sh
     restart: always
   latest:
-    from: imma/ubuntu
+    image: imma/ubuntu
     privileged: true
     volumes_from:
       - container:data
