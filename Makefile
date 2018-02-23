@@ -51,6 +51,7 @@ push pull prune prep:
 	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) $@
 
 rebase:
+	$(MAKE) prune
 	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) update
 
 base:
