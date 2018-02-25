@@ -73,28 +73,6 @@ data-download:
 logs:
 	docker-compose logs -f
 
-shell:
-	$(MAKE) shell-setup
-	$(MAKE) shell-wait
-	$(MAKE) shell-ssh
-
-shell-setup:
-	$(MAKE) ssh-config
-	docker rm -f port_shell 2>/dev/null || true
-	docker run --privileged -d --name port_shell -p :22 --volumes-from data -v /tmp/work:/tmp/work -v /var/run/docker.sock:/var/run/docker.sock -ti imma/ubuntu
-
-shell-wait:
-	while true; do if ssh -l ubuntu -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $(SSH_HOST) true; then break; fi; sleep 1; done
-
-shell-update:
-	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST) block sync fast
-
-shell-fixup:
-	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST) sudo chgrp docker /var/run/docker.sock
-
-shell-ssh:
-	ssh -A -l ubuntu -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$(shell docker inspect port_shell | jq -r '.[0].NetworkSettings.Ports["22/tcp"][0].HostPort')" $(SSH_HOST)
-
 sync:
 	git pull
 	cd && block sync fast
