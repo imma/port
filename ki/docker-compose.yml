@@ -1,9 +1,0 @@
-version: '2'
-services:
-  imma_start2:
-    image: imma/ubuntu:start2
-    privileged: true
-    ports:
-      - "2222:22"
-    volumes_from:
-      - container:data

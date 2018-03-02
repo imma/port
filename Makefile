@@ -1,81 +1,88 @@
 SHELL := bash
-
 SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway' 2>/dev/null || echo 127.0.0.1)
-
-restart:
-	$(MAKE) ssh-config
-	ps -o pgid "$(shell echo $$PPID)" | tail -1  | awk '{print $1}' > .pgroup
-	$(MAKE) up
-
-screen:
-	screen -X -S imma quit || true
-	if [[ -f .pgroup ]]; then sudo pkill -g "$(shell cat .pgroup)" || true; sleep 5; sudo pkill -9 -g "$(shell cat .pgroup)" || true; fi
-	rm -f .pgroup
-	screen -S imma -m $(MAKE) restart
-
-up:
-	$(MAKE) ssh-config
-	docker-compose up -d --build
-	while ! docker run --volumes-from openvpn_data alpine ls /etc/openvpn/docker.ovpn 2>/dev/null; do sleep 1; done
-
-connect:
-	mkdir -p config
-	docker run --volumes-from openvpn_data alpine cat /etc/openvpn/docker.ovpn > config/docker.ovpn
-	block openvpn script/server default --script-security 2 --config "$(shell pwd)/config/docker.ovpn"
-
-ssh_host := $(shell docker inspect port_latest_1 2>/dev/null | jq -r '.[0].NetworkSettings.Networks.bridge.IPAddress')
-
-ssh:
-	$(MAKE) ssh-config
-	ssh-keyscan $(ssh_host) > latest/.ssh/known_hosts
-	ssh -A -l ubuntu -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(ssh_host) $(opt)
-
-init:
-	while ! $(MAKE) ssh opt="-o ConnectTimeout=1 true"; do sleep 1; done
-	tx init $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(opt)
-	@echo '======================================================='
-	@echo '=============== one-time init finished   =============='
-	@echo '======================================================='
-
-attach:
-	$(MAKE) ssh opt=true
-	tx $(ssh_host) -o StrictHostKeyChecking=yes -o UserKnownHostsFile=latest/.ssh/known_hosts $(opt)
-
-ssh-config:
-	mkdir -p latest/.ssh
-	mkdir -p .ssh
-	rsync -ia ~/.ssh/authorized_keys latest/.ssh/
-	rsync -ia ~/.ssh/authorized_keys .ssh/
-
-push pull prune prep:
-	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) $@
+KI := conv
+DATA ?= /data
+REPO ?= imma/ubuntu
+TAG ?= latest
+DOCKER_COMPOSE := env COMPOSE_PROJECT_NAME=build docker-compose
 
 rebase:
 	$(MAKE) prune
-	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE) update
+	$(MAKE) update
 
-base:
-	cd ki && env SSH_HOST=$(SSH_HOST) $(MAKE)
+all:
+	echo $(shell date +%s) >> .meh
+	$(MAKE) ubuntu_base
+	docker tag $(REPO):ubuntu $(REPO):start
+	docker tag $(REPO):ubuntu $(REPO):start2
+	$(DOCKER_COMPOSE) up -d --build --force-recreate
+	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
+	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
+	$(MAKE) continue
+	$(MAKE) finish
+	docker tag $(REPO):latest $(REPO):start
 
-seed:
-	docker volume create data
-	docker volume create openvpn_data
+ubuntu_base: .kitchen/docker_id_rsa
+	mkdir -p .ssh
+	rsync -ia ~/.ssh/authorized_keys .ssh/
+	ln -nfs Dockerfile.base Dockerfile
+	docker build -t $(REPO):ubuntu .
 
-data-upload:
-	docker build -t imma/rsync rsync
-	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync rsync -ia /data2/. /data/. --delete
-	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync chown -R 1000:1000 /data
+update:
+	$(MAKE) prep
+	mkdir -p .ssh
+	rsync -ia ~/.ssh/authorized_keys .ssh/
+	ln -nfs Dockerfile.update Dockerfile
+	echo $(shell date +%s) >> .meh
+	docker build -t $(REPO):start2 .
+	$(DOCKER_COMPOSE) up -d --build --force-recreate
+	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
+	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
+	$(MAKE) continue
+	$(MAKE) finish
 
-data-download:
-	docker build -t imma/rsync rsync
-	docker run -v data:/data -v $(DATA):/data2 -ti imma/rsync rsync -ia /data/. /data2/.
+continue:
+	ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
+	echo FINISHED: ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
 
-logs:
-	docker-compose logs -f
+finish:
+	$(DOCKER_COMPOSE) ps -q
+	docker commit $(shell $(DOCKER_COMPOSE) ps -q | head -1) $(REPO):latest
+	$(DOCKER_COMPOSE) down || $(DOCKER_COMPOSE) down
 
-sync:
-	git pull
-	cd && block sync fast
+dind:
+	$(MAKE) SSH_HOST=$(shell echo "$(shell docker network inspect bridge | jq -r '.[0].IPAM.Config[0].Subnet' | cut -d. -f1-3).1")
 
-install:
-	sudo apt-get -y install make jq docker-compose
+.kitchen/docker_id_rsa:
+	mkdir -p .kitchen
+	ssh-keygen -f .kitchen/docker_id_rsa -P ''
+
+docker-listen:
+	docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 bobrik/socat TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
+
+push:
+	ecs push "$(REPO):$(TAG)"
+
+pull:
+	ecs pull "$(REPO):$(TAG)"
+	docker tag "$(shell aws ecr describe-repositories --repository-name $(REPO) | jq -r '.repositories[].repositoryUri'):$(TAG)" "$(REPO):$(TAG)"
+
+docker:
+	ki $(KI) docker-ubuntu
+
+virtualbox:
+	ki $(KI) virtualbox-ubuntu
+
+virtualbox-docker:
+	ki exec virtualbox-ubuntu -c 'ssh -A -o StrictHostKeyChecking=no ubuntu@localhost ki $(KI) docker-ubuntu'
+
+prune:
+	docker system prune -f
+	docker system df
+	docker create --name data -v data:/data alpine true
+
+prep: .kitchen/docker_id_rsa
+	if ! docker inspect "$(REPO):start" > /dev/null; then docker tag $(REPO):latest $(REPO):start; fi
+
+ps:
+	$(DOCKER_COMPOSE) ps
