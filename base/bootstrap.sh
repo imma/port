@@ -70,22 +70,22 @@ function main {
         ;;
     esac
 
-		ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true
+    ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true
 
-		git clone git@github.com:imma/ubuntu
-		mv ubuntu/.git .
+    git clone git@github.com:imma/ubuntu
+    mv ubuntu/.git .
 
-		rm -f .bootstrapping
+    rm -f .bootstrapping
   fi
 
   git fetch
-	git reset --hard
+  git reset --hard
   git pull
 
-	script/setup
-	script/bootstrap
+  script/setup
+  script/bootstrap
 
-	for a in {1..5}; do git clean -ffd || true; done
+  for a in {1..5}; do git clean -ffd || true; done
   sudo rm -f ~root/.ssh/authorized_keys
   (set +f; rm -f .ssh/authorized_keys .ssh/*id_rsa*)
   rm -rf "$WRKOBJDIR"
