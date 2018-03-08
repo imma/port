@@ -49,12 +49,6 @@ platforms:
       dockerfile: lambda/Dockerfile
     provisioner:
       script: lambda/bootstrap.sh
-  - name: alpine
-    driver_config:
-      linked_clone: true
-      dockerfile: alpine/Dockerfile
-    provisioner:
-      script: alpine/bootstrap.sh
   - name: ubuntu-minima
     driver:
       linked_clone: true
@@ -74,13 +68,6 @@ platforms:
       linked_clone: true
       dockerfile: centos/Dockerfile
       platform: centos
-    provisioner:
-      script: base/minima.sh
-  - name: alpine-minima
-    driver:
-      linked_clone: true
-      dockerfile: alpine/Dockerfile
-      platform: alpine
     provisioner:
       script: base/minima.sh
   - name: lambda-minima
