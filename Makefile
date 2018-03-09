@@ -22,7 +22,8 @@ rebase:
 	$(MAKE) finish
 
 finish:
-	docker-compose up -d --build --force-recreate
+	docker-compose down
+	docker-compose up -d --build
 	$(MAKE) finish_
 
 finish_:
