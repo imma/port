@@ -25,20 +25,20 @@ finish:
 	$(DOCKER_COMPOSE) up -d --build --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
-	ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
-	echo FINISHED: ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/script/bootstrap
-	$(DOCKER_COMPOSE) ps -q
-	docker commit $(shell $(DOCKER_COMPOSE) ps -q | head -1) $(REPO):latest
-	$(DOCKER_COMPOSE) down || $(DOCKER_COMPOSE) down
+	ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/libexec/bootstrap
+	docker commit $(shell $(DOCKER_COMPOSE) ps -q shell) $(REPO):latest
+	$(DOCKER_COMPOSE) down
 
-prep:
-	mkdir -p .kitchen
-	ssh-keygen -f .kitchen/docker_id_rsa -P ''
+prep: .kitchen/docker_id_rsa
 	echo $(shell date +%s) >> .meh
 	mkdir -p .ssh
 	rsync -ia ~/.ssh/authorized_keys .ssh/
 	docker create --name data -v data:/data alpine true 2>/dev/null || true
 	docker run -v data:/data alpine chown 1000:1000 /data
+
+.kitchen/docker_id_rsa:
+	mkdir -p .kitchen
+	ssh-keygen -f .kitchen/docker_id_rsa -P ''
 
 push:
 	ecs push "$(REPO):$(TAG)"

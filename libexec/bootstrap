@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 function main {
-
   cd
 
   ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true

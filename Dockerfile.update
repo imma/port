@@ -24,6 +24,6 @@ RUN chmod 0600 /home/ubuntu/.ssh/authorized_keys
 
 RUN chown -R root:root /root/.ssh
 
-COPY script/service /service
+COPY libexec/service /service
 ENTRYPOINT ["/service"]
 CMD []
