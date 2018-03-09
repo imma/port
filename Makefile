@@ -10,7 +10,7 @@ rebase:
 	$(MAKE) prune
 	$(MAKE) update
 
-all:
+base:
 	echo $(shell date +%s) >> .meh
 	$(MAKE) ubuntu_base
 	docker tag $(REPO):ubuntu $(REPO):start
