@@ -9,11 +9,11 @@ DOCKER_COMPOSE := env COMPOSE_PROJECT_NAME=build docker-compose
 .PHONY: base
 
 rebase:
-	$(MAKE) prune
+	$(MAKE) prep
 	$(MAKE) update
 
 base:
-	$(MAKE) prune
+	$(MAKE) prep
 	echo $(shell date +%s) >> .meh
 	$(MAKE) ubuntu_base
 	docker tag $(REPO):ubuntu $(REPO):start
@@ -33,6 +33,7 @@ ubuntu_base: .kitchen/docker_id_rsa
 
 update:
 	$(MAKE) prep
+	if ! docker inspect "$(REPO):start" > /dev/null; then docker tag $(REPO):latest $(REPO):start; fi
 	mkdir -p .ssh
 	rsync -ia ~/.ssh/authorized_keys .ssh/
 	ln -nfs Dockerfile.update Dockerfile
@@ -79,13 +80,9 @@ virtualbox:
 virtualbox-docker:
 	ki exec virtualbox-ubuntu -c 'ssh -A -o StrictHostKeyChecking=no ubuntu@localhost ki $(KI) docker-ubuntu'
 
-prune:
-	docker system prune -f
-	docker system df
-	docker create --name data -v data:/data alpine true
-
 prep: .kitchen/docker_id_rsa
-	if ! docker inspect "$(REPO):start" > /dev/null; then docker tag $(REPO):latest $(REPO):start; fi
+	docker create --name data -v data:/data alpine true 2>/dev/null || true
+	docker run -v data:/data alpine chown 1000:1000 /data
 
 ps:
 	$(DOCKER_COMPOSE) ps
