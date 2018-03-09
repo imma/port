@@ -2,7 +2,6 @@ SHELL := bash
 SSH_HOST := $(shell docker inspect $(shell uname -n) 2>/dev/null | jq -er '.[0].NetworkSettings.Networks | to_entries[0].value.Gateway' 2>/dev/null || echo 127.0.0.1)
 REPO ?= imma/ubuntu
 TAG ?= latest
-DOCKER_COMPOSE := env COMPOSE_PROJECT_NAME=build docker-compose
 
 .PHONY: base
 
@@ -22,12 +21,12 @@ rebase:
 	$(MAKE) finish
 
 finish:
-	$(DOCKER_COMPOSE) up -d --build --force-recreate
+	docker-compose up -d --build --force-recreate
 	while true; do if nc -z $(SSH_HOST) 2222; then break; fi; sleep 1; done
 	while true; do if ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) true; then break; fi; sleep 1; done
 	ssh -A -p 2222 -o IdentityFile=$(shell pwd)/.kitchen/docker_id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@$(SSH_HOST) /tmp/cache/libexec/bootstrap
-	docker commit $(shell $(DOCKER_COMPOSE) ps -q shell) $(REPO):latest
-	$(DOCKER_COMPOSE) down
+	docker commit $(shell docker-compose ps -q imma_start2) $(REPO):latest
+	docker-compose down
 
 prep: .kitchen/docker_id_rsa
 	echo $(shell date +%s) >> .meh
