@@ -5,7 +5,7 @@ services:
     image: imma/ubuntu:start2
     privileged: true
     ports:
-      - "2222:22"
+      - "22"
     volumes:
       - type: volume
         source: data
