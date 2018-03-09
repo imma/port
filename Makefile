@@ -6,11 +6,14 @@ REPO ?= imma/ubuntu
 TAG ?= latest
 DOCKER_COMPOSE := env COMPOSE_PROJECT_NAME=build docker-compose
 
+.PHONY: base
+
 rebase:
 	$(MAKE) prune
 	$(MAKE) update
 
 base:
+	$(MAKE) prune
 	echo $(shell date +%s) >> .meh
 	$(MAKE) ubuntu_base
 	docker tag $(REPO):ubuntu $(REPO):start
