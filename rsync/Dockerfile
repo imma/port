@@ -21,4 +21,4 @@ RUN sudo update-locale LANG=en_US.UTF-8
 RUN sudo groupadd -g 497 docker
 RUN sudo usermod -G docker ubuntu
 
-RUN sudo apt-get install -y vim-nox
+RUN sudo apt-get install -y vim-nox git
