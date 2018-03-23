@@ -10,6 +10,9 @@ RUN useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
 RUN install -d -m 0700 -o ubuntu -g ubuntu /home/ubuntu/.ssh
 RUN echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/ubuntu
 
+RUN mkdir /sync
+RUN chown ubuntu:ubuntu /sync
+
 USER ubuntu
 WORKDIR /home/ubuntu
 
